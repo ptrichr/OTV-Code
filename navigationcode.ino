@@ -1,6 +1,11 @@
 #include <Enes100.h>
 
-// angular directions of the arena
+/*
+  DISCLAIMER: GPT-4 was used to create templates for the implementation of certain methods, specifically the code that pulls distance information
+  from the ultrasonic sensors (getDistance)
+*/
+
+// angular directions of the arena (in radians)
 #define NORTH (M_PI)/2
 #define SOUTH -(NORTH)
 #define EAST 0
@@ -10,7 +15,7 @@
 // pins for communicating with the overhead vision system
 #define TX_PIN 22
 #define RX_PIN 24
-#define MARKER_ID
+#define MARKER_ID // need to input
 
 // pins for the distance sensors (PWM)
 #define TRIGGER_PIN_1 2
@@ -52,13 +57,14 @@ void setup() {
   pinMode(MOTOR_B_PIN_1, OUTPUT);
   pinMode(MOTOR_B_PIN_2, OUTPUT);
 
+  // begins the serial monitor (for debugging purposes)
   Serial.begin(115200);
 
-  // get the starting position of the OTV
+  // intial call to get the starting position of the OTV for the faceSite() method
   Enes.updatePosition();
 
-  // initializes 3 floats with the x position, y position and angular orientation
-  float xpos = Enes100.location.x, ypos = Enes100.location.y, apos = Enes100.location.theta
+  // initializes 3 floats that hold the x position, y position and angular orientation of the aruco marker
+  float xpos = Enes100.location.x, ypos = Enes100.location.y, apos = Enes100.location.theta;
 
   // boolean corresponding to whether or not the OTV is starting at the top position: true if it is in the top position, and false otherwise
   bool startingPos = (ypos > 1.0) ? true : false;
@@ -74,7 +80,10 @@ void loop() {
     all of the code required to navigate through the open zone, including avoiding obstacles
   */
   
-  // implement GPT-4 generated template
+  // distance measurements for each ultrasonic sensor
+  int distance_1 = getDistance(TRIGGER_PIN_1, ECHO_PIN_1);
+  int distance_2 = getDistance(TRIGGER_PIN_2, ECHO_PIN_2);
+  int distance_3 = getDistance(TRIGGER_PIN_3, ECHO_PIN_3);
 
 }
 
@@ -129,7 +138,7 @@ void faceSite(bool top, float orientation) {
 
 /*
   this method returns the distance readings from the sensor with the pins that correspond to
-  trigger_pin and echo_pin
+  trigger_pin and echo_pin. this method was written with the help of GPT-4
 */
 int getDistance(int trigger_pin, int echo_pin) {
   // Send ultrasonic pulse
