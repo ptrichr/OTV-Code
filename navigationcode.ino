@@ -15,7 +15,7 @@
 // pins for communicating with the overhead vision system
 #define TX_PIN 22
 #define RX_PIN 24
-#define MARKER_ID // need to input
+#define MARKER_ID 9
 
 // pins for the distance sensors (PWM)
 #define TRIGGER_PIN_1 2
@@ -34,14 +34,17 @@
 #define MOTOR_B_PIN_1 10
 #define MOTOR_B_PIN_2 11
 
-// begins the mission
-Enes100.begin("Trial By Fire", FIRE, MARKER_ID, TX_PIN, RX_PIN);
+// initializes 3 floats that hold the x position, y position and angular orientation of the aruco marker
+float xpos = Enes100.location.x, ypos = Enes100.location.y, orientation = Enes100.location.theta;
 
 void setup() {
   /*
     all of the navigation code required to get to the open zone. this will only run once so it makes sense to
     separate this code from code that needs to be run multiple times
   */
+
+  // begins the mission
+  Enes100.begin("Trial By Fire", FIRE, MARKER_ID, TX_PIN, RX_PIN);
 
   // initializing the pin modes for the ultrasonic sensor pins
   pinMode(TRIGGER_PIN_1, OUTPUT);
@@ -63,27 +66,28 @@ void setup() {
   // intial call to get the starting position of the OTV for the faceSite() method
   Enes.updatePosition();
 
-  // initializes 3 floats that hold the x position, y position and angular orientation of the aruco marker
-  float xpos = Enes100.location.x, ypos = Enes100.location.y, apos = Enes100.location.theta;
-
   // boolean corresponding to whether or not the OTV is starting at the top position: true if it is in the top position, and false otherwise
   bool startingPos = (ypos > 1.0) ? true : false;
 
   // makes a call to faceSite() which will orient the OTV towards the mission site depending on its starting position
-  faceSite(startingPos, apos);
+  faceSite(startingPos, orientation);
 
 
 }
 
 void loop() {
   /*
-    all of the code required to navigate through the open zone, including avoiding obstacles
+    implementation of the logic required to navigate through the osbtacle zone and into the goal zone.
   */
   
+  Enes.updatePosition();
+
   // distance measurements for each ultrasonic sensor
   int distance_1 = getDistance(TRIGGER_PIN_1, ECHO_PIN_1);
   int distance_2 = getDistance(TRIGGER_PIN_2, ECHO_PIN_2);
   int distance_3 = getDistance(TRIGGER_PIN_3, ECHO_PIN_3);
+
+  if (xpos )
 
 }
 
@@ -150,6 +154,6 @@ int getDistance(int trigger_pin, int echo_pin) {
 
   // Receive echo and calculate distance
   long duration = pulseIn(echo_pin, HIGH);
-  int distance = duration * 0.034 / 2;
+  int distance = (duration * 0.0343) / 2;
   return distance;
 }
