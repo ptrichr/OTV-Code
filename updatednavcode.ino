@@ -1,5 +1,5 @@
-#include "Enes100.h"
 #include <math.h>
+#include "Enes100.h"
 
 /*
 * DISCLAIMER: We used GPT-4 to generate the code that the distance sensor uses to read distance (getDistance)
@@ -7,7 +7,7 @@
 
 const double NORTH = M_PI/2;
 const double SOUTH = -(M_PI/2);
-const double MARGIN = M_PI/370;
+const double MARGIN = M_PI/20;
 
 // pins for the distance sensors (PWM)
 
@@ -34,8 +34,8 @@ const int IN_4 = 12;
 /* The code inside void setup() runs only once, before the code in void loop(). */
 void setup() {
 
-	Enes100.begin("Trial By Fire", FIRE, 3, 8, 9); // Required before you can use any other Enes100 functions.
-  Serial.begin(9600);
+	Enes100.begin("Trial By Fire", FIRE, 209, 50, 51); // param: name, mission, aruco, tx, rx
+  Serial.begin(9600); // DO NOT CHANGE, ESP8266 BAUD IS 9600
 
   pinMode(EN_A, OUTPUT);
   pinMode(IN_1, OUTPUT);
@@ -53,23 +53,41 @@ void setup() {
 /* The code in void loop() runs repeatedly forever */ 
 void loop() { 
 	
-	Enes100.updateLocation();
-	
-	bool topStart = (Enes100.location.y > 1.0);
-	Enes100.println(Enes100.location.y);
   double missionLocation;
+
+  getY();
 	
-	if (topStart) {
+ /*
+ * face the mission site
+ */
+
+	if (getY() > 1.0) {
 		
+    Enes100.println(getY());
 		faceDir(SOUTH);
+    Enes100.println("facing direction");
+
+  /*
+  the aruco is offset from the body of the OTV, and mission site y 
+  is the exact y coordinate of the center of the site, offset accordingly
+  */
+
     missionLocation = Enes100.missionSite.y + 0.11;
 		
 	} else {
 		
+    Enes100.println(getY());
 		faceDir(NORTH);
+    Enes100.println("facing direction");
     missionLocation = Enes100.missionSite.y - 0.11;
 		
 	}
+
+  Enes100.println("done");
+
+  /*
+  * move to the mission site
+  */
 	
 	moveToLocation(false, missionLocation);
 	Enes100.updateLocation();
@@ -86,6 +104,15 @@ void loop() {
 	Enes100.updateLocation();
 	
 	/* Obstacle avoidance logic */
+
+  /*
+
+  update the condition of this while loop to be 
+  when the OTV is outside of the obstacle zone
+  instead of while(1)
+
+  */
+
 	while (1) {
 		
 		Enes100.updateLocation();
@@ -96,11 +123,11 @@ void loop() {
 
 			if (Enes100.location.y < 1.0) {
 				faceDir(Enes100.location.theta + NORTH);
-				moveToLocation(false, 1.0)
+				moveToLocation(false, 1.0);
 				faceDir(Enes100.location.theta - NORTH);
 			} else {
 				faceDir(Enes100.location.theta + SOUTH);
-				moveToLocation(false, 1.0)
+				moveToLocation(false, 1.0);
 				faceDir(Enes100.location.theta - SOUTH);
 			}
 
@@ -123,6 +150,12 @@ void loop() {
 		}
 		
 	}
+
+  /*
+
+  need to add logic here to move OTV to top half of the arena and face the log and go through to end
+
+  */
 	
 	while(1);  // Circumvent the loop and ensure the above statements only get run once.
 	
@@ -131,6 +164,31 @@ void loop() {
 /* This is an example function to make both motors drive
  * at the given power.
  */
+
+double getX() {
+
+  Enes100.updateLocation();
+
+  return Enes100.location.x;
+
+}
+
+double getY() {
+
+  Enes100.updateLocation();
+
+  return Enes100.location.y;
+
+}
+
+double getHeading() {
+
+  Enes100.updateLocation();
+
+  return Enes100.location.theta;
+
+}
+
 void setMotorSpeed(int PWMspeed) {
 
   
@@ -201,33 +259,38 @@ void rotateLeft(int PWMspeed) {
 }
 
 void faceDir(double limit) {
-	
-	bool oriented = false;
-	
+
+  bool oriented = false;
+
 	do {
-		
-		Enes100.updateLocation();
-		
-		if (Enes100.location.theta <= limit + MARGIN && Enes100.location.theta >= limit - MARGIN) {
-		
-			setMotorSpeed(0);
-			oriented = true;
+
+    Enes100.println(getHeading());
+
+    if (getHeading() <= limit + MARGIN && getHeading() >= limit - MARGIN) {
+
+      setMotorSpeed(0);
+      oriented = true;
+
+    }
+	
+		if (getHeading() < limit - MARGIN) {
+	
+			rotateLeft(120);
 		
 		}
 	
-		if (Enes100.location.theta < limit - MARGIN) {
+		if (getHeading() > limit + MARGIN) {
 		
-			rotateLeft(90);
-		
-		}
-	
-		if (Enes100.location.theta > limit + MARGIN) {
-		
-			rotateRight(90);
+			rotateRight(120);
 		
 		}
+
+    delay(50);
 		
 	} while (!oriented);
+
+  setMotorSpeed(0);
+
 	
 }
 
