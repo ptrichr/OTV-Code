@@ -42,8 +42,6 @@ const int IN_4 = 12;
 // const uint8_t sensorPinLeft = 8;
 // const uint8_t sensorPinRight = 9;
 
-
-
 /* The code inside void setup() runs only once, before the code in void loop(). */
 void setup() {
 
@@ -102,11 +100,17 @@ void loop() {
   */
 	
 	moveToLocation(false, missionLocation);
-	Enes100.updateLocation();
-	
+
+  /*
+
+  insert mission logic here?
+
+  */
+
+	moveToLocation(false, 1.0);
 	faceDir(EAST);
 
-	Enes100.updateLocation();
+  Enes100.updateLocation();
 	
 	/* Obstacle avoidance logic */
 
@@ -116,15 +120,13 @@ void loop() {
   instead of while(1)
   */
 
-	while (1) {
-		
-		Enes100.updateLocation();
+	do {
 		
 		if (getDistance(TRIGGER_1, ECHO_1) <= 50 || getDistance(TRIGGER_2, ECHO_2) <= 50) {
 			
       setMotorSpeed(0);
 
-			if (Enes100.location.y < 1.0) {
+			if (getY() < 1.0) {
 				faceDir(NORTH);
 				moveToLocation(false, 1.0);
 				faceDir(EAST);
@@ -134,12 +136,11 @@ void loop() {
 				faceDir(EAST);
 			}
 
-		} else if (Enes100.location.x > 3) {
+		} else if (getX() > 3) {
 			
-			if (Enes100.location.y <= 1.2) {
+			if (getY() <= 1.2) {
 				faceDir(NORTH);
-				while (Enes100.location.y < 1.2) {
-					Enes100.updateLocation();
+				while (getY() < 1.2) {
 					setMotorSpeed(100);
 				}
 				faceDir(EAST);
@@ -152,13 +153,7 @@ void loop() {
 			setMotorSpeed(100);
 		}
 		
-	}
-
-  /*
-  need to add logic here to move OTV to top half of the arena and face the log and go through to end
-  */
-	
-	while(1);  // Circumvent the loop and ensure the above statements only get run once.
+	} while (1);
 	
 }
 
@@ -207,7 +202,6 @@ void setMotorSpeed(int PWMspeed) {
 }
 
 void setMotorDir(int motor, bool forward) {
-
 
   // left motor
   if (motor == 1) {
@@ -263,25 +257,14 @@ void faceDir(const double limit) {
 
   Serial.print("faceDir: ");
   Serial.println(limit);
-  
-  bool oriented = false;
 
+  Enes100.updateLocation();
+  
 	do {
 
     Enes100.println(getHeading());
     Serial.print("getheading(): ");
     Serial.println(getHeading());
-
-
-    if ((getHeading() <= limit + MARGIN) && (getHeading() >= limit - MARGIN)) {
-
-      setMotorSpeed(0);
-      oriented = true;
-      Enes100.println("here0");
-      Serial.print("limit0: ");
-      Serial.println(limit);
-
-    }
 	
 		if ((getHeading() < limit - MARGIN) || (getHeading() > limit + MARGIN)) {
 	
@@ -305,17 +288,19 @@ void faceDir(const double limit) {
     setMotorSpeed(0);
 
 		
-	} while (!oriented);
+	} while ((getHeading() <= limit + MARGIN) && (getHeading() >= limit - MARGIN));
 
   setMotorSpeed(0);
+  Enes100.println("here0");
+  Serial.print("limit0: ");
+  Serial.println(limit);
 
 	
 }
 
 void moveToLocation(bool xDir, double limit) {
 
-  setMotorDir(1, true);
-  setMotorDir(2, true);
+  Enes100.updateLocation()
 	
 	if (xDir) {
 		
@@ -331,45 +316,53 @@ void moveToLocation(bool xDir, double limit) {
 
 void moveX(double limit) {
 	
-	bool done = false;
-	
 	do {
-		
-		Enes100.updateLocation();
-		
-		if (Enes100.location.x <= limit + MARGIN && Enes100.location.x >= limit - MARGIN) {
-			
-			setMotorSpeed(0);
-			done = true;
-			return;
-			
-		} 
+
+    if (getX() > limit + MARGIN) {
+
+      setMotorDir(1, false);
+      setMotorDir(2, false);
+
+    }
+
+    if (getX() < limit - MARGIN) {
+
+      setMotorDir(1, true);
+      setMotorDir(2, true);
+
+    }
 		
 		setMotorSpeed(90);
 		
-	} while (!done);
+	} while ((getX() <= limit + MARGIN) && (getX() >= limit - MARGIN));
+
+  setMotorSpeed(0);
 	
 }
 	
 void moveY(double limit) {
 	
-	bool done = false;
-	
 	do {
 		
-		Enes100.updateLocation();
-		
-		if (Enes100.location.y <= limit + MARGIN && Enes100.location.y >= limit - MARGIN) {
-			
-			setMotorSpeed(0);
-			done = true;
-			return;
-			
-		} 
+    if (getY() > limit + MARGIN) {
+
+      setMotorDir(1, false);
+      setMotorDir(2, false);
+
+    }
+
+    if (getY() < limit - MARGIN) {
+
+      setMotorDir(1, true);
+      setMotorDir(2, true);
+
+    }
 		
 		setMotorSpeed(90);
 		
-	} while (!done);
+	} while ((getY() <= limit + MARGIN && getY() >= limit - MARGIN));
+
+  setMotorSpeed(0);
 	
 }
 
