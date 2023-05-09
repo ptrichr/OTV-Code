@@ -36,6 +36,12 @@ void setup() {
 /* The code in void loop() runs repeatedly forever */ 
 void loop() { 
 
+  setMotorSpeed(100);
+
+  delay(10000);
+
+  while(1);
+
   // while(1) {
   //   Serial.println(getDistance(TRIGGER_1, ECHO_1));
   // }
@@ -57,27 +63,26 @@ void loop() {
 
   // replace 0.55 with getYMissionLocation()
 
-    missionLocation = 0.55 + 0.11;
+    missionLocation = getYMissionLocation() + 0.11;
 		
 	} else {
 		
     faceDir(NORTH);
 
-    missionLocation = 0.55 - 0.11;
+    missionLocation = getYMissionLocation() - 0.11;
 		
 	}
 
   /*
   * move to the mission site
   */
+
+  setMotorDir(1, true);
+  setMotorDir(2, true);
 	
 	moveToLocation(false, missionLocation);
 
-  /*
-
-  insert mission logic here?
-
-  */
+  // doMission();
 
   setMotorDir(1, false);
   setMotorDir(2, false);
@@ -125,7 +130,7 @@ void loop() {
 				faceDir(EAST);
 				setMotorSpeed(100);
 			} else {
-				setMotorSpeed(100);
+				setMotorSpeed(255);
 			}
 			
 		} else {
