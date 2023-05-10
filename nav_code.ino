@@ -91,7 +91,7 @@ void loop() {
 
 	if (getY() > 1.0) {
 
-		faceDir(SOUTH);
+		faceDirRight(SOUTH);
 
   /*
   the aruco is offset from the body of the OTV, and mission site y 
@@ -102,7 +102,7 @@ void loop() {
 		
 	} else {
 		
-    faceDir(NORTH);
+    faceDirRight(NORTH);
 
     missionLocation = Enes100.missionSite.y - 0.11;
 		
@@ -176,7 +176,7 @@ void loop() {
 				setMotorDir(1, true);
         setMotorDir(2, true);
         setMotorSpeed(100);
-				delay(2000);
+				delay(3000);
         setMotorSpeed(0);
 				faceDir(EAST);
 
@@ -187,7 +187,7 @@ void loop() {
 				setMotorDir(1, true);
         setMotorDir(2, true);
         setMotorSpeed(100);
-				delay(2000);
+				delay(3000);
         setMotorSpeed(0);
 				faceDir(EAST);
 
@@ -196,20 +196,8 @@ void loop() {
 			}
 		}
     
-    if (Enes100.location.x > 2.7) {
-			
-			if (Enes100.location.y <= 1.5) {
-				faceDir(NORTH);
-				while (Enes100.location.y < 1.5) {
-					Enes100.updateLocation();
-					setMotorSpeed(100);
-				}
-				faceDir(EAST);
-				setMotorSpeed(100);
-			} else {
-				setMotorSpeed(100);
-			}
-			
+    if (Enes100.location.x > 2.6) {
+			break;
 		}
     
     if (Enes100.location.theta > 0 + MARGIN) {
@@ -221,13 +209,36 @@ void loop() {
     setMotorDir(1, true);
     setMotorDir(2, true);
 		setMotorSpeed(100);
-    delay(2000);
+    delay(500);
 		
-	}
+	}  
 
   /*
   need to add logic here to move OTV to top half of the arena and face the log and go through to end
   */
+
+  while (1) {
+    if (Enes100.location.y <= 1.6) {
+      setMotorSpeed(0);
+      faceDir(NORTH);
+      while (Enes100.location.y < 1.6) {
+        Enes100.updateLocation();
+        setMotorDir(1, true);
+        setMotorDir(2, true);
+        setMotorSpeed(100);
+      }
+      setMotorSpeed(0);
+      faceDir(EAST);
+      setMotorDir(1, true);
+      setMotorDir(2, true);
+      setMotorSpeed(100);
+    } else {
+      faceDir(EAST);
+      setMotorDir(1, true);
+      setMotorDir(2, true);
+      setMotorSpeed(100);
+    }
+  }
 	
 	while(1);  // Circumvent the loop and ensure the above statements only get run once.
 	
