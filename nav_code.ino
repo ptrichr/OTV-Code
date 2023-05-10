@@ -91,7 +91,7 @@ void loop() {
 
 	if (getY() > 1.0) {
 
-		faceDirRight(SOUTH);
+		faceDir(SOUTH);
 
   /*
   the aruco is offset from the body of the OTV, and mission site y 
@@ -102,7 +102,7 @@ void loop() {
 		
 	} else {
 		
-    faceDirRight(NORTH);
+    faceDir(NORTH);
 
     missionLocation = Enes100.missionSite.y - 0.11;
 		
@@ -176,7 +176,7 @@ void loop() {
 				setMotorDir(1, true);
         setMotorDir(2, true);
         setMotorSpeed(100);
-				delay(3000);
+				delay(5000);
         setMotorSpeed(0);
 				faceDir(EAST);
 
@@ -187,7 +187,7 @@ void loop() {
 				setMotorDir(1, true);
         setMotorDir(2, true);
         setMotorSpeed(100);
-				delay(3000);
+				delay(5000);
         setMotorSpeed(0);
 				faceDir(EAST);
 
