@@ -2,10 +2,6 @@
 #include "Enes100.h"
 #include <Servo.h>
 
-/*
-* DISCLAIMER: We used GPT-4 to generate the code that the distance sensor uses to read distance (getDistance)
-*/
-
 const double NORTH = M_PI/2;
 const double SOUTH = -(double)M_PI/2;
 const double EAST = 0;
